@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>30-Day Anger Bootcamp Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --primary: #ff4d4d;
+            --primary-hover: #ff3333;
+            --accent: #38bdf8;
+            --text: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --border: #27272a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        h1 { margin: 0; color: var(--primary); font-size: 2.5rem; }
+        p.subtitle { color: var(--text-muted); margin: 5px 0 0 0; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .grid { grid-template-columns: 1fr 1fr; }
+            .full-width { grid-column: span 2; }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 { margin-top: 0; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 10px; font-size: 1.4rem;}
+
+        /* Form styling */
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text); }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: var(--primary-hover); }
+
+        /* Tactical Breathing Module */
+        #breathing-circle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        #breathing-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: transform 4s linear;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+        #breath-instruction {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        /* 30 Day Grid */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .day-box {
+            aspect-ratio: 1;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .day-box:hover { border-color: var(--text-muted); }
+        .day-box.completed { background-color: #22c55e; color: white; border-color: #22c55e; }
+        .day-box.relapsed { background-color: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Logs List */
+        .log-item {
+            background-color: var(--bg-color);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+        }
+        .log-meta { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Cognitive Reframing tool Output */
+        #reframed-output {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #1e293b;
+            border-left: 4px solid var(--accent);
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>30-Day Anger Bootcamp</h1>
+        <p class="subtitle">Advanced Behavioral & Emotional Rewiring System</p>
+    </header>
+
+    <div class="grid">
+        <div class="card full-width">
+            <h2>Course Progress Tracker (30 Days)</h2>
+            <p class="subtitle" style="margin-bottom: 15px;">Click a day to toggle state: Gray (Unchecked) ➔ Green (Controlled Day) ➔ Red (Relapsed/Slip Up)</p>
+            <div class="calendar-grid" id="calendar"></div>
+        </div>
+
+        <div class="card">
+            <h2>Phase 1 & 4: Live Flashpoint Log</h2>
+            <form id="log-form">
+                <label for="trigger">1. What lit the match? (The Trigger)</label>
+                <textarea id="trigger" rows="2" placeholder="E.g., Colleague interrupted me, game lag..." required></textarea>
+
+                <label for="physical">2. Physical Flashpoint (What did your body do?)</label>
+                <input type="text" id="physical" placeholder="E.g., Jaw clenched, hot chest, heavy breathing" required>
+
+                <label for="intensity">3. Anger Intensity Level (1 to 10)</label>
+                <select id="intensity">
+                    <option value="1-3">1-3 (Annoyed / Irritated)</option>
+                    <option value="4-7">4-7 (Visibly Angry / Snapping)</option>
+                    <option value="8-10">8-10 (Blinded Rage / Explosive)</option>
+                </select>
+
+                <label for="action">4. How did you react?</label>
+                <textarea id="action" rows="2" placeholder="E.g., I walked away / I yelled" required></textarea>
+
+                <button type="submit">Log Flashpoint Entry</button>
+            </form>
+
+            <div style="margin-top: 20px; max-height: 250px; overflow-y: auto;" id="logs-container">
+                <h3>Logged Events History</h3>
+                <div id="logs-list"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Phase 2: Tactical Intervention (Box Breathing)</h2>
+            <p class="subtitle">Disrupt the flight-or-fight response loop instantly when triggered.</p>
+            <div id="breathing-circle-container">
+                <div id="breathing-circle">Ready</div>
+                <div id="breath-instruction">Click start to activate override</div>
+            </div>
+            <button id="start-breath-btn" style="background-color: var(--accent);">Start Tactical Breathing Loop</button>
+        </div>
+
+        <div class="card full-width">
+            <h2>Phase 3: Cognitive Script Reframer</h2>
+            <p class="subtitle">Reprogram the automatic angry thoughts into logical realities.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                <div>
+                    <label for="irrational-thought">Automatic Angry Thought:</label>
+                    <textarea id="irrational-thought" rows="3" placeholder="E.g., 'They are driving slow on purpose just to piss me off!'"></textarea>
+                </div>
+                <div>
+                    <label for="cognitive-distortion">Select the Core Distortion:</label>
+                    <select id="distortion-type">
+                        <option value="Personalization">Personalization (Assuming it's a direct attack on you)</option>
+                        <option value="Mind Reading">Mind Reading (Assuming you know their negative motives)</option>
+                        <option value="Catastrophizing">Catastrophizing (Making it out to be the end of the world)</option>
+                        <option value="Should Statements">"Should" Expectations (Demanding reality match your rules)</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="reframeThought()" style="background-color: #581c87;">Process & Generate Logic Script</button>
+            
+            <div id="reframed-output">
+                <strong>💡 Logical Counter-Script:</strong>
+                <p id="reframed-text" style="margin: 5px 0 0 0; font-style: italic;"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 30 DAY CALENDAR LOGIC ---
+    const calendar = document.getElementById('calendar');
+    let progressData = JSON.parse(localStorage.getItem('anger_progress')) || {};
+
+    function initCalendar() {
+        calendar.innerHTML = '';
+        for (let i = 1; i <= 30; i++) {
+            const dayBox = document.createElement('div');
+            dayBox.classList.add('day-box');
+            dayBox.innerText = i;
+            
+            if (progressData[i] === 'completed') dayBox.classList.add('completed');
+            if (progressData[i] === 'relapsed') dayBox.classList.add('relapsed');
+
+            dayBox.addEventListener('click', () => {
+                if (!progressData[i]) {
+                    progressData[i] = 'completed';
+                    dayBox.classList.add('completed');
+                } else if (progressData[i] === 'completed') {
+                    progressData[i] = 'relapsed';
+                    dayBox.classList.remove('completed');
+                    dayBox.classList.add('relapsed');
+                } else {
+                    delete progressData[i];
+                    dayBox.classList.remove('relapsed');
+                }
+                localStorage.setItem('anger_progress', JSON.stringify(progressData));
+            });
+            calendar.appendChild(dayBox);
+        }
+    }
+
+    // --- ANGER LOGGING LOGIC ---
+    const logForm = document.getElementById('log-form');
+    const logsList = document.getElementById('logs-list');
+    let angerLogs = JSON.parse(localStorage.getItem('anger_logs')) || [];
+
+    function renderLogs() {
+        logsList.innerHTML = '';
+        if(angerLogs.length === 0) {
+            logsList.innerHTML = '<p class="subtitle">No entries logged yet.</p>';
+            return;
+        }
+        angerLogs.slice().reverse().forEach(log => {
+            const div = document.createElement('div');
+            div.classList.add('log-item');
+            div.innerHTML = `
+                <div class="log-meta">${log.date} | Intensity: <strong style="color:var(--primary)">${log.intensity}</strong></div>
+                <div><strong>Trigger:</strong> ${log.trigger}</div>
+                <div><strong>Physical Sign:</strong> ${log.physical}</div>
+                <div><strong>Response:</strong> ${log.action}</div>
+            `;
+            logsList.appendChild(div);
+        });
+    }
+
+    logForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newLog = {
+            date: new Date().toLocaleString(),
+            trigger: document.getElementById('trigger').value,
+            physical: document.getElementById('physical').value,
+            intensity: document.getElementById('intensity').value,
+            action: document.getElementById('action').value
+        };
+        angerLogs.push(newLog);
+        localStorage.setItem('anger_logs', JSON.stringify(angerLogs));
+        renderLogs();
+        logForm.reset();
+    });
+
+    // --- TACTICAL BREATHING INTERVENTION (BOX BREATHING) ---
+    const startBtn = document.getElementById('start-breath-btn');
+    const circle = document.getElementById('breathing-circle');
+    const instruction = document.getElementById('breath-instruction');
+    let breathingInterval;
+
+    startBtn.addEventListener('click', () => {
+        if (breathingInterval) {
+            clearInterval(breathingInterval);
+            breathingInterval = null;
+            circle.style.transform = 'scale(1)';
+            circle.innerText = "Ready";
+            instruction.innerText = "Click start to activate override";
+            startBtn.innerText = "Start Tactical Breathing Loop";
+            return;
+        }
+
+        startBtn.innerText = "Stop / Terminate Loop";
+        let phase = 0; 
+        const sequence = [
+            { text: "Inhale", scale: 1.5, desc: "Breath deep into your stomach" },
+            { text: "Hold", scale: 1.5, desc: "Lock the air in, relax your jaw" },
+            { text: "Exhale", scale: 1.0, desc: "Push the heat and tension out" },
+            { text: "Hold", scale: 1.0, desc: "Empty lungs, wait for calm" }
+        ];
+
+        function runBreathing() {
+            const current = sequence[phase];
+            circle.style.transform = `scale(${current.scale})`;
+            circle.innerText = current.text;
+            instruction.innerText = current.desc;
+            
+            let count = 4;
+            // Immediate tick countdown inside the text
+            circle.innerText = `${current.text} (${count})`;
+            const countdown = setInterval(() => {
+                count--;
+                if(count > 0 && breathingInterval) {
+                    circle.innerText = `${current.text} (${count})`;
+                } else {
+                    clearInterval(countdown);
+                }
+            }, 1000);
+
+            phase = (phase + 1) % 4;
+        }
+
+        runBreathing();
+        breathingInterval = setInterval(runBreathing, 4000);
+    });
+
+    // --- COGNITIVE REFRAMING LOGIC ---
+    function reframeThought() {
+        const thought = document.getElementById('irrational-thought').value;
+        const distortion = document.getElementById('distortion-type').value;
+        const outputDiv = document.getElementById('reframed-output');
+        const outputText = document.getElementById('reframed-text');
+
+        if(!thought.trim()) {
+            alert('Please type an angry thought first!');
+            return;
+        }
+
+        let dynamicCounter = "";
+        switch(distortion) {
+            case "Personalization":
+                dynamicCounter = `This is not an attack on me. The universe is not conspiring against me. This person/event is simply operating in its own chaotic path, completely detached from who I am.`;
+                break;
+            case "Mind Reading":
+                dynamicCounter = `I do not possess telepathy. I am inventing a malicious intent for them in my own head. They are likely stressed, incompetent, or oblivious—not deliberately trying to anger me.`;
+                break;
+            case "Catastrophizing":
+                dynamicCounter = `This is highly inconvenient and frustrating, yes. But it is not a tragedy, no one is dying, and my life will continue cleanly past this 15-minute window. Do not burn down the house for a temporary leak.`;
+                break;
+            case "Should Statements":
+                dynamicCounter = `I am getting angry because I demand the world conform to my strict rules. The world does not care about my rules. I must accept reality exactly as it is right now, then calmly work to adjust it.`;
+                break;
+        }
+
+        outputText.innerHTML = `<strong>Detected Distortion: ${distortion}</strong><br><br>"${thought}" ➔ <span style="color: var(--accent);">${dynamicCounter}</span>`;
+        outputDiv.style.display = "block";
+    }
+
+    // Initialize fields
+    initCalendar();
+    renderLogs();
+</script>
+</body>
+</html>
