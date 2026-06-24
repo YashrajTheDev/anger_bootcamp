@@ -62,7 +62,6 @@
 
         h2 { margin-top: 0; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 10px; font-size: 1.4rem;}
 
-        /* Form styling */
         label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text); }
         input, textarea, select {
             width: 100%;
@@ -92,7 +91,6 @@
         }
         button:hover { background-color: var(--primary-hover); }
 
-        /* Tactical Breathing Module */
         #breathing-circle-container {
             display: flex;
             flex-direction: column;
@@ -120,7 +118,6 @@
             color: var(--accent);
         }
 
-        /* 30 Day Grid */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
@@ -143,7 +140,6 @@
         .day-box.completed { background-color: #22c55e; color: white; border-color: #22c55e; }
         .day-box.relapsed { background-color: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Logs List */
         .log-item {
             background-color: var(--bg-color);
             padding: 12px;
@@ -153,7 +149,6 @@
         }
         .log-meta { font-size: 0.8rem; color: var(--text-muted); }
 
-        /* Cognitive Reframing tool Output */
         #reframed-output {
             margin-top: 15px;
             padding: 15px;
@@ -246,7 +241,6 @@
 </div>
 
 <script>
-    // --- 30 DAY CALENDAR LOGIC ---
     const calendar = document.getElementById('calendar');
     let progressData = JSON.parse(localStorage.getItem('anger_progress')) || {};
 
@@ -278,7 +272,6 @@
         }
     }
 
-    // --- ANGER LOGGING LOGIC ---
     const logForm = document.getElementById('log-form');
     const logsList = document.getElementById('logs-list');
     let angerLogs = JSON.parse(localStorage.getItem('anger_logs')) || [];
@@ -317,7 +310,6 @@
         logForm.reset();
     });
 
-    // --- TACTICAL BREATHING INTERVENTION (BOX BREATHING) ---
     const startBtn = document.getElementById('start-breath-btn');
     const circle = document.getElementById('breathing-circle');
     const instruction = document.getElementById('breath-instruction');
@@ -350,7 +342,6 @@
             instruction.innerText = current.desc;
             
             let count = 4;
-            // Immediate tick countdown inside the text
             circle.innerText = `${current.text} (${count})`;
             const countdown = setInterval(() => {
                 count--;
@@ -368,7 +359,6 @@
         breathingInterval = setInterval(runBreathing, 4000);
     });
 
-    // --- COGNITIVE REFRAMING LOGIC ---
     function reframeThought() {
         const thought = document.getElementById('irrational-thought').value;
         const distortion = document.getElementById('distortion-type').value;
@@ -400,9 +390,14 @@
         outputDiv.style.display = "block";
     }
 
-    // Initialize fields
     initCalendar();
     renderLogs();
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js');
+        });
+    }
 </script>
 </body>
 </html>
